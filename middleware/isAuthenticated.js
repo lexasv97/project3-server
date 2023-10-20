@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-const isUAuthenticated = async (req, res, next) => {
+const isAuthenticated = async (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
 
   if (!token || token === "null") {
@@ -10,6 +10,11 @@ const isUAuthenticated = async (req, res, next) => {
   try {
     const tokenInfo = jwt.verify(token, process.env.SECRET);
     req.user = tokenInfo;
+
+    // req.user.isUser = true
+
+    // req.user.isBusiness = false
+
     next();
   } catch (error) {
     console.log(error.message, "Error.message")
@@ -18,4 +23,4 @@ const isUAuthenticated = async (req, res, next) => {
   
 };
 
-module.exports = isUAuthenticated;
+module.exports = isAuthenticated;

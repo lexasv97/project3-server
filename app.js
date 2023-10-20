@@ -8,9 +8,7 @@ var cors = require('cors')
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var userAuthRouter = require('./routes/user-auth');
-var businessesRouter = require('./routes/businesses');
-var businessAuthRouter = require('./routes/business-auth');
+var authRouter = require('./routes/auth');
 var itemsRouter = require('./routes/items');
 var servicesRouter = require('./routes/services');
 var reviewsRouter = require('./routes/reviews');
@@ -38,9 +36,7 @@ app.use(
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/businesses', businessesRouter);
-app.use('/user-auth', userAuthRouter);
-app.use('/business-auth', businessAuthRouter);
+app.use('/auth', authRouter);
 app.use('/items', itemsRouter);
 app.use('/services', servicesRouter);
 app.use('/reviews', reviewsRouter)

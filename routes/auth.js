@@ -4,14 +4,13 @@ var router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const Business = require('../models/Business')
+const User = require("../models/User");
 
-const isBAuthenticated = require('../middleware/isBAuthenticated')
-
+const isAuthenticated = require('../middleware/isAuthenticated')
 const saltRounds = 10;
 
-router.post("/business-signup", (req, res, next) => {
-    const { email, password, name } = req.body;
+router.post("/signup", (req, res, next) => {
+    const { email, password, name, isBusiness } = req.body;
 
     // Check if the email or password or name is provided as an empty string
     if (email === "" || password === "" || name === "") {
@@ -33,12 +32,12 @@ router.post("/business-signup", (req, res, next) => {
     //   return;
     // }
 
-    // Check the businesses collection if a business with the same email already exists
-    Business.findOne({ email })
-        .then((foundBusiness) => {
-            // If the business with the same email already exists, send an error response
-            if (foundBusiness) {
-                res.status(400).json({ message: "Business already exists." });
+    // Check the users collection if a user with the same email already exists
+    User.findOne({ email })
+        .then((foundUser) => {
+            // If the user with the same email already exists, send an error response
+            if (foundUser) {
+                res.status(400).json({ message: "User already exists." });
                 return;
             }
 
@@ -46,16 +45,16 @@ router.post("/business-signup", (req, res, next) => {
             const salt = bcrypt.genSaltSync(saltRounds);
             const hashedPassword = bcrypt.hashSync(password, salt);
 
-            // Create a new business in the database
+            // Create a new user in the database
             // We return a pending promise, which allows us to chain another `then`
-            Business.create({ email, password: hashedPassword, name })
-                .then((createdBusiness) => {
-                    // Deconstruct the newly created business object to omit the password
+            User.create({ email, password: hashedPassword, name, isBusiness })
+                .then((createdUser) => {
+                    // Deconstruct the newly created user object to omit the password
                     // We should never expose passwords publicly
-                    const { email, name, _id } = createdBusiness;
+                    const { email, name, _id, isBusiness } = createdUser;
 
                     // Create a new object that doesn't expose the password
-                    const payload = { _id, email, name };
+                    const payload = { _id, email, name, isBusiness };
 
                     // Create and sign the token
                     const authToken = jwt.sign(payload, process.env.SECRET, {
@@ -77,7 +76,7 @@ router.post("/business-signup", (req, res, next) => {
         });
 });
 
-router.post("/business-login", (req, res, next) => {
+router.post("/login", (req, res, next) => {
     const { email, password } = req.body;
 
     // Check if email or password are provided as empty string
@@ -86,26 +85,24 @@ router.post("/business-login", (req, res, next) => {
         return;
     }
 
-    // Check the businesses collection if a business with the same email exists
-    Business.findOne({ email })
-        .populate('items')
-        .populate('services')
-        .then((foundBusiness) => {
-            if (!foundBusiness) {
-                // If the business is not found, send an error response
-                res.status(401).json({ message: "Business not found." });
+    // Check the users collection if a user with the same email exists
+    User.findOne({ email })
+        .then((foundUser) => {
+            if (!foundUser) {
+                // If the user is not found, send an error response
+                res.status(401).json({ message: "User not found." });
                 return;
             }
 
             // Compare the provided password with the one saved in the database
-            const passwordCorrect = bcrypt.compareSync(password, foundBusiness.password);
+            const passwordCorrect = bcrypt.compareSync(password, foundUser.password);
 
             if (passwordCorrect) {
-                // Deconstruct the business object to omit the password
-                const { _id, email, name, pets, location, image } = foundBusiness;
+                // Deconstruct the user object to omit the password
+                const { _id, email, name, isUser, isBusiness, addresses, profileImage } = foundUser;
 
                 // Create an object that will be set as the token payload
-                const payload = { _id, email, name, pets, location, image };
+                const payload = { _id, email, name, isUser, isBusiness, addresses, profileImage };
 
                 // Create and sign the token
                 const authToken = jwt.sign(payload, process.env.SECRET, {
@@ -122,15 +119,15 @@ router.post("/business-login", (req, res, next) => {
         .catch((err) => res.status(500).json({ message: "Internal Server Error" }));
 });
 
-router.get('/business-verify', isBAuthenticated, (req, res, next) => {       
+router.get('/verify', isAuthenticated, (req, res, next) => {      
 
     // If JWT token is valid the payload gets decoded by the
     // isAuthenticated middleware and made available on `req.payload`
-    console.log("req.business", req.business);
+    console.log("req.user", req.user);
 
     // Send back the object with user data
     // previously set as the token payload
-    res.status(200).json(req.business);
+    res.status(200).json(req.user);
 });
 
 

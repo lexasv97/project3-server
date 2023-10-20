@@ -2,7 +2,7 @@ const { Schema, model } = require("mongoose");
 
 const serviceSchema = new Schema(
     {
-        owner: { type: Schema.Types.ObjectId, ref: 'Business'},
+        user: { type: Schema.Types.ObjectId, ref: 'User'},
         description: String,
         image: String,
         category: String,

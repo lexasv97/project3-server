@@ -4,11 +4,12 @@ var mongoose = require("mongoose");
 
 const Item = require('../models/Item')
 const User = require('../models/User')
-const Business = require('../models/Business')
+const isAuthenticated = require('../middleware/isAuthenticated');
+const isItemOwner = require('../middleware/isItemOwner')
+const isBusiness = require('../middleware/isBusiness')
 
-const isBAuthenticated = require('../middleware/isBAuthenticated')
 
-router.get('/items', (req, res, next) => {
+router.get('/', (req, res, next) => {
     Item.find()
         .populate('reviews')
         .then((response) => {
@@ -21,11 +22,11 @@ router.get('/items', (req, res, next) => {
         })
 })
 
-router.post('/items/new/:itemId', (req, res, next) => {
+router.post('/new', isAuthenticated, isBusiness, (req, res, next) => {
 
     Item.create({
         ...req.body,
-        owner: req.business._id
+        owner: req.user._id
     })
         .then((newItem) => {
             res.json(newItem)
@@ -38,7 +39,7 @@ router.post('/items/new/:itemId', (req, res, next) => {
 
 })
 
-router.get('/items/:itemId', (req, res, next) => {
+router.get('/:itemId', (req, res, next) => {
     const { itemId } = req.params
 
     if (!mongoose.Types.ObjectId.isValid(itemId)) {
@@ -58,7 +59,7 @@ router.get('/items/:itemId', (req, res, next) => {
         })
 })
 
-router.put('/items/:itemId', (req, res, next) => {
+router.put('/:itemId', isAuthenticated, isItemOwner, (req, res, next) => {
     const { itemId } = req.params
 
     if (!mongoose.Types.ObjectId.isValid(itemId)) {
@@ -80,7 +81,7 @@ router.put('/items/:itemId', (req, res, next) => {
         })
 })
 
-router.delete('/items/:itemId', (req, res, next) => {
+router.delete('/:itemId', isAuthenticated, isItemOwner, (req, res, next) => {
     const { itemId } = req.params
 
     if (!mongoose.Types.ObjectId.isValid(itemId)) {

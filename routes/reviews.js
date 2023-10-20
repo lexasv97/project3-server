@@ -3,14 +3,16 @@ var router = express.Router();
 
 const Review = require('../models/Review')
 
-const isUAuthenticated = require('../middleware/isUAuthenticated');
+const isAuthenticated = require('../middleware/isAuthenticated');
+const isReviewer = require('../middleware/isReviewer');
+const isUser = require('../middleware/isUser')
 
-router.post('/items/reviews/new/:itemId', (req, res, next) => {
+router.post('/items/new/:itemId', isAuthenticated, isUser, (req, res, next) => { 
     // console.log("REQ.BODY ====>", req.body) 
     // console.log("ITEM ID ====> ", req.params.itemId)   
 
     Review.create({
-        user: req.session.user._id,   // IS IT CORRECT WITH SESSION ???
+        user: req.user._id,  
         comment: req.body.comment,
         rating: req.body.rating
     })
@@ -36,7 +38,7 @@ router.post('/items/reviews/new/:itemId', (req, res, next) => {
         })
 })
 
-router.delete("/:reviewId", (req, res, next) => {
+router.delete("/:reviewId", isAuthenticated, isReviewer, (req, res, next) => { 
     const { reviewId } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(reviewId)) {
@@ -54,12 +56,12 @@ router.delete("/:reviewId", (req, res, next) => {
         .catch((error) => res.json(error));
 })
 
-router.post('/services/reviews/new/:serviceId', (req, res, next) => {
+router.post('/services/new/:serviceId', isAuthenticated, isUser,  (req, res, next) => {  
     // console.log("REQ.BODY ====>", req.body) 
     // console.log("SERVICE ID ====> ", req.params.serviceId)   
 
     Review.create({
-        user: req.session.user._id,   // IS IT CORRECT WITH SESSION ???
+        user: req.user._id,  
         comment: req.body.comment,
         rating: req.body.rating
     })

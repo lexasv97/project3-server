@@ -2,15 +2,13 @@ var express = require('express');
 var router = express.Router();
 
 const User = require('../models/User')
-const isUAuthenticated = require('../middleware/isUAuthenticated');
+const isAuthenticated = require('../middleware/isAuthenticated')
 
-/* GET users listing. */
-router.get('/user-details/:UserId', (req, res, next) => {
+router.get('/details/:UserId', isAuthenticated, (req, res, next) => {
 
   const { userId } = req.params
 
   User.find(userId)
-    .populate('addresses')
     .then((foundUser) => {
       const { _id, email, name, addresses, profileImage } = foundUser
 
@@ -23,7 +21,7 @@ router.get('/user-details/:UserId', (req, res, next) => {
     })
 })
 
-router.post('/update-user-profile', isUAuthenticated, (req, res, next) => {
+router.post('/update-profile', isAuthenticated, (req, res, next) => {
 
   User.findByIdAndUpdate(
     req.user._id,
@@ -31,10 +29,7 @@ router.post('/update-user-profile', isUAuthenticated, (req, res, next) => {
     { new: true }
   )
     .then((updatedUser) => {
-      return updatedUser.populate('addresses')
-    })
-    .then((populatedUser) => {
-      const { _id, email, name, addresses, profileImage } = populatedUser
+      const { _id, email, name, addresses, profileImage } = updatedUser
       const user = { _id, email, name, addresses, profileImage }
       const authToken = jwt.sign(user, process.env.SECRET, {
         algorithm: "HS256",

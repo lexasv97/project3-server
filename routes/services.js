@@ -4,11 +4,12 @@ var mongoose = require("mongoose");
 
 const Service = require('../models/Service')
 const User = require('../models/User')
-const Business = require('../models/Business')
+const isBusiness = require('../middleware/isBusiness')
+const isAuthenticated = require('../middleware/isAuthenticated')
+const isServiceOwner = require('../middleware/isServiceOwner')
 
-const isBAuthenticated = require('../middleware/isBAuthenticated')
 
-router.get('/services', (req, res, next) => {
+router.get('/', (req, res, next) => {
     Service.find()
         .populate('reviews')
         .then((response) => {
@@ -21,7 +22,7 @@ router.get('/services', (req, res, next) => {
         })
 })
 
-router.post('/services/new/:serviceId', (req, res, next) => {
+router.post('/new/:serviceId', isAuthenticated, isBusiness, (req, res, next) => {
 
     Service.create({
         ...req.body,
@@ -38,7 +39,7 @@ router.post('/services/new/:serviceId', (req, res, next) => {
 
 })
 
-router.get('/services/:serviceId', (req, res, next) => {
+router.get('/:serviceId', (req, res, next) => {
     const { serviceId } = req.params
 
     if (!mongoose.Types.ObjectId.isValid(serviceId)) {
@@ -58,7 +59,7 @@ router.get('/services/:serviceId', (req, res, next) => {
         })
 })
 
-router.put('/services/:serviceId', (req, res, next) => {
+router.put('/:serviceId', isAuthenticated, isServiceOwner, (req, res, next) => {
     const { serviceId } = req.params
 
     if (!mongoose.Types.ObjectId.isValid(serviceId)) {
@@ -80,7 +81,7 @@ router.put('/services/:serviceId', (req, res, next) => {
         })
 })
 
-router.delete('/services/:serviceId', (req, res, next) => {
+router.delete('/:serviceId', isAuthenticated, isServiceOwner, (req, res, next) => {
     const { serviceId } = req.params
 
     if (!mongoose.Types.ObjectId.isValid(serviceId)) {
