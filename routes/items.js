@@ -28,6 +28,15 @@ router.post('/new', isAuthenticated, isBusiness, (req, res, next) => {
         ...req.body,
         owner: req.user._id
     })
+        .then((createdItem) => {
+            User.findByIdAndUpdate(
+                req.params.itemId,
+                {
+                    $push: { items: createdItem._id }
+                },
+                { new: true }
+            )
+        })
         .then((newItem) => {
             res.json(newItem)
         })

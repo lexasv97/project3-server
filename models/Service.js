@@ -3,8 +3,8 @@ const { Schema, model } = require("mongoose");
 const serviceSchema = new Schema(
     {
         user: { type: Schema.Types.ObjectId, ref: 'User'},
+        name: String,
         description: String,
-        image: String,
         category: String,
         location: String,
         image: {

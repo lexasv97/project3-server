@@ -22,11 +22,20 @@ router.get('/', (req, res, next) => {
         })
 })
 
-router.post('/new/:serviceId', isAuthenticated, isBusiness, (req, res, next) => {
+router.post('/new', isAuthenticated, isBusiness, (req, res, next) => {
 
     Service.create({
         ...req.body,
-        owner: req.business._id
+        owner: req.user._id
+    })
+    .then((createdService) => {
+        User.findByIdAndUpdate(
+            req.params.serviceId,
+            {
+                $push: {services: createdService._id}
+            },
+            {new: true}
+        )
     })
         .then((newService) => {
             res.json(newService)

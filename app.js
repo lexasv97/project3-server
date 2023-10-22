@@ -39,7 +39,7 @@ app.use('/users', usersRouter);
 app.use('/auth', authRouter);
 app.use('/items', itemsRouter);
 app.use('/services', servicesRouter);
-app.use('/reviews', reviewsRouter)
+app.use('/reviews', reviewsRouter);
 
 mongoose
   .connect(process.env.MONGODB_URI)
