@@ -9,7 +9,7 @@ const serviceSchema = new Schema(
         location: String,
         image: {
             type: String,
-            default: 'https://arthurmillerfoundation.org/wp-content/uploads/2018/06/default-placeholder-1024x1024.png'
+            default: 'https://curie.pnnl.gov/sites/default/files/default_images/default-image_0.jpeg'
         },
         reviews: [{ type: Schema.Types.ObjectId, ref: "Review" }],
     },

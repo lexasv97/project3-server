@@ -7,6 +7,19 @@ const isAuthenticated = require('../middleware/isAuthenticated');
 const isReviewer = require('../middleware/isReviewer');
 const isUser = require('../middleware/isUser')
 
+router.get('/', (req, res, next) => {
+    Review.find()
+    .populate('user')
+        .then((response) => {
+            res.json(response)
+        })
+        .catch((err) => {
+            console.log(err)
+            res.json(err)
+            next(err)
+        })
+})
+
 router.post('/items/new/:itemId', isAuthenticated, isUser, (req, res, next) => { 
     // console.log("REQ.BODY ====>", req.body) 
     // console.log("ITEM ID ====> ", req.params.itemId)   
@@ -56,7 +69,7 @@ router.delete("/:reviewId", isAuthenticated, isReviewer, (req, res, next) => {
         .catch((error) => res.json(error));
 })
 
-router.post('/services/new/:serviceId', isAuthenticated, isUser,  (req, res, next) => {  
+router.post('/new/:serviceId', isAuthenticated, isUser,  (req, res, next) => {  
     // console.log("REQ.BODY ====>", req.body) 
     // console.log("SERVICE ID ====> ", req.params.serviceId)   
 

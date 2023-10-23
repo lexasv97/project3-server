@@ -11,6 +11,7 @@ const isServiceOwner = require('../middleware/isServiceOwner')
 
 router.get('/', (req, res, next) => {
     Service.find()
+        .populate('user')
         .populate('reviews')
         .then((response) => {
             res.json(response)
@@ -26,19 +27,25 @@ router.post('/new', isAuthenticated, isBusiness, (req, res, next) => {
 
     Service.create({
         ...req.body,
-        owner: req.user._id
+        user: req.user._id
     })
-    .then((createdService) => {
-        User.findByIdAndUpdate(
-            req.params.serviceId,
-            {
-                $push: {services: createdService._id}
-            },
-            {new: true}
-        )
-    })
-        .then((newService) => {
-            res.json(newService)
+        .then((createdService) => {
+            User.findByIdAndUpdate(
+                req.params.serviceId,
+                {
+                    $push: { services: createdService._id }
+                },
+                { new: true }
+            )
+                .then((newUser) => {
+                    console.log("New USer", newUser)
+                })
+                .catch((err) => {
+                    console.log(err)
+                    res.json(err)
+                    next(err)
+                })
+            res.json(createdService)
         })
         .catch((err) => {
             console.log(err)

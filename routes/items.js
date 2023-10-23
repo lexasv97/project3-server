@@ -11,6 +11,7 @@ const isBusiness = require('../middleware/isBusiness')
 
 router.get('/', (req, res, next) => {
     Item.find()
+        .populate('user')
         .populate('reviews')
         .then((response) => {
             res.json(response)
