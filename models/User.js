@@ -7,6 +7,7 @@ const userSchema = new Schema(
         name: String,
         isBusiness: {type: Boolean, default: false},
         addresses: [{type: String}],
+        phone: Number,
         items: [{type: Schema.Types.ObjectId, ref: 'Item'}],
         services: [{type: Schema.Types.ObjectId, ref: 'Service'}],
         profileImage: {

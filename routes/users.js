@@ -1,46 +1,97 @@
 var express = require('express');
 var router = express.Router();
 
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
 const User = require('../models/User')
 const isAuthenticated = require('../middleware/isAuthenticated')
 
-router.get('/details/:UserId', isAuthenticated, (req, res, next) => {
+const saltRounds = 10;
 
-  const { userId } = req.params
+// router.get('/details/:UserId', isAuthenticated, (req, res, next) => {
 
-  User.find(userId)
-    .then((foundUser) => {
-      const { _id, email, name, addresses, profileImage } = foundUser
+//   const { userId } = req.params
 
-      res.json({ _id, email, name, addresses, profileImage })
+//   User.find(userId)
+//     .then((foundUser) => {
+//       const { _id, email, name, phone, addresses, profileImage } = foundUser
+
+//       res.json({ _id, email, phone, name, addresses, profileImage })
+//     })
+//     .catch((err) => {
+//       console.log(err)
+//       res.json(err)
+//       next(err)
+//     })
+// })
+
+router.put('/update-profile', isAuthenticated, (req, res, next) => {
+
+  const { user, name, email, phone, addresses, password, profileImage, isBusiness } = req.body
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  if (!emailRegex.test(email)) {
+    res.status(400).json({ message: "Provide a valid email address." });
+    return;
+  }
+
+  User.findById(user._id)
+    .then((foundProfile) => {
+      if (password) {
+
+        const salt = bcrypt.genSaltSync(saltRounds);
+        const hashedPassword = bcrypt.hashSync(password, salt);
+        User.findByIdAndUpdate(
+          foundProfile._id,
+          {
+            name,
+            email,
+            phone,
+            profileImage,
+            isBusiness,
+            password: hashedPassword
+          },
+          { new: true })
+
+          .then((updatedUser) => {
+            const { email, name, phone, addresses, profileImage, isBusiness } = updatedUser
+            console.log("Updated ====>", updatedUser)
+            res.json(updatedUser)
+          })
+          .catch((err) => {
+            console.log(err)
+            next(err)
+          })
+
+      } else {
+
+        User.findByIdAndUpdate(
+          user._id,
+          {
+            name,
+            phone,
+            addresses,
+            profileImage,
+            isBusiness
+          },
+          { new: true }
+        )
+          .then((updatedUser) => {
+            const { email, name, phone, addresses, profileImage, isBusiness } = updatedUser
+            res.json(updatedUser)
+          })
+          .catch((err) => {
+            console.log(err);
+            res.json(err);
+            next(err);
+          })
+      }
     })
     .catch((err) => {
       console.log(err)
-      res.json(err)
       next(err)
     })
-})
-
-router.post('/update-profile', isAuthenticated, (req, res, next) => {
-
-  User.findByIdAndUpdate(
-    req.user._id,
-    req.body,
-    { new: true }
-  )
-    .then((updatedUser) => {
-      const { _id, email, name, addresses, profileImage } = updatedUser
-      const user = { _id, email, name, addresses, profileImage }
-      const authToken = jwt.sign(user, process.env.SECRET, {
-        algorithm: "HS256",
-        expiresIn: "6h",
-      })
-    })
-    .catch((err) => {
-      console.log(err);
-      res.json(err);
-      next(err);
-    });
 })
 
 module.exports = router;

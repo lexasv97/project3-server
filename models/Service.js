@@ -7,6 +7,8 @@ const serviceSchema = new Schema(
         description: String,
         category: String,
         location: String,
+        latitude: Number,
+        longitude: Number,
         image: {
             type: String,
             default: 'https://curie.pnnl.gov/sites/default/files/default_images/default-image_0.jpeg'

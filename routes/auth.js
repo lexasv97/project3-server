@@ -10,7 +10,7 @@ const isAuthenticated = require('../middleware/isAuthenticated')
 const saltRounds = 10;
 
 router.post("/signup", (req, res, next) => {
-    const { email, password, name, isBusiness } = req.body;
+    const { email, password, phone, name, isBusiness } = req.body;
 
     // Check if the email or password or name is provided as an empty string
     if (email === "" || password === "" || name === "") {
@@ -51,10 +51,10 @@ router.post("/signup", (req, res, next) => {
                 .then((createdUser) => {
                     // Deconstruct the newly created user object to omit the password
                     // We should never expose passwords publicly
-                    const { email, name, _id, isBusiness } = createdUser;
+                    const { email, phone, name, _id, isBusiness } = createdUser;
 
                     // Create a new object that doesn't expose the password
-                    const payload = { _id, email, name, isBusiness };
+                    const payload = { _id, email, name, phone, isBusiness };
 
                     // Create and sign the token
                     const authToken = jwt.sign(payload, process.env.SECRET, {
@@ -99,10 +99,10 @@ router.post("/login", (req, res, next) => {
 
             if (passwordCorrect) {
                 // Deconstruct the user object to omit the password
-                const { _id, email, name, isUser, isBusiness, addresses, profileImage } = foundUser;
+                const { _id, email, name, isBusiness, addresses, profileImage } = foundUser;
 
                 // Create an object that will be set as the token payload
-                const payload = { _id, email, name, isUser, isBusiness, addresses, profileImage };
+                const payload = { _id, email, name, isBusiness, addresses, profileImage };
 
                 // Create and sign the token
                 const authToken = jwt.sign(payload, process.env.SECRET, {

@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 const Review = require('../models/Review')
+const Service = require('../models/Service')
 
 const isAuthenticated = require('../middleware/isAuthenticated');
 const isReviewer = require('../middleware/isReviewer');
@@ -69,19 +70,17 @@ router.delete("/:reviewId", isAuthenticated, isReviewer, (req, res, next) => {
         .catch((error) => res.json(error));
 })
 
-router.post('/new/:serviceId', isAuthenticated, isUser,  (req, res, next) => {  
+router.post('/new', isAuthenticated, isUser,  (req, res, next) => {  
     // console.log("REQ.BODY ====>", req.body) 
-    // console.log("SERVICE ID ====> ", req.params.serviceId)   
+    // console.log("SERVICE ID ====> ", req.params.serviceId)
+    
+    const { comment, rating, serviceId, user } = req.body
 
-    Review.create({
-        user: req.user._id,  
-        comment: req.body.comment,
-        rating: req.body.rating
-    })
+    Review.create({ comment, rating, user: user._id })
         .then((newReview) => {
-            //console.log("NEW REVIEW ===>", newReview)
+            console.log("NEW REVIEW ===>", newReview)
             return Service.findByIdAndUpdate(
-                req.params.serviceId,
+                serviceId,
                 {
                     $push: { reviews: newReview._id }
                 },

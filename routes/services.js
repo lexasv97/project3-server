@@ -25,6 +25,11 @@ router.get('/', (req, res, next) => {
 
 router.post('/new', isAuthenticated, isBusiness, (req, res, next) => {
 
+    if (!req.body.category) {
+        res.status(400).json({ message: "Provide a category." });
+        return;
+    }
+
     Service.create({
         ...req.body,
         user: req.user._id
@@ -83,7 +88,7 @@ router.put('/:serviceId', isAuthenticated, isServiceOwner, (req, res, next) => {
         return;
     }
 
-    Service.findByIdAndUpdate(serviceId, req.body, { new: true })
+    Service.findByIdAndUpdate(serviceId, req.body, { new: true }) 
         .then((updatedService) => {
             return updatedService.populate('reviews')
         })
