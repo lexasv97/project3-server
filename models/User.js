@@ -12,7 +12,7 @@ const userSchema = new Schema(
         services: [{type: Schema.Types.ObjectId, ref: 'Service'}],
         profileImage: {
             type: String,
-            default: 'https://cvhrma.org/wp-content/uploads/2015/07/default-profile-photo.jpg'
+            default: 'https://www.pacificfoodmachinery.com.au/media/catalog/product/placeholder/default/no-product-image-400x400.png'
         }
     },
     {

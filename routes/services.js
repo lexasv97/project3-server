@@ -30,6 +30,8 @@ router.post('/new', isAuthenticated, isBusiness, (req, res, next) => {
         return;
     }
 
+    
+
     Service.create({
         ...req.body,
         user: req.user._id
@@ -69,7 +71,13 @@ router.get('/:serviceId', (req, res, next) => {
     }
 
     Service.findById(serviceId)
-        .populate('reviews')
+        // .populate('reviews')
+        .populate({
+            path: 'reviews',
+            populate: {
+                path: 'user'
+            }
+        })
         .then((service) => {
             res.status(200).json(service)
         })
