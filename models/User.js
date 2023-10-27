@@ -12,7 +12,7 @@ const userSchema = new Schema(
         services: [{type: Schema.Types.ObjectId, ref: 'Service'}],
         profileImage: {
             type: String,
-            default: 'https://www.pacificfoodmachinery.com.au/media/catalog/product/placeholder/default/no-product-image-400x400.png'
+            default: 'https://t4.ftcdn.net/jpg/02/15/84/43/240_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg'
         }
     },
     {
